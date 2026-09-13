@@ -4,15 +4,20 @@ import { useCatalog } from '~~/app/composables/useCatalog';
 import { useLocale } from '~~/app/composables/useLocale';
 import { useCatalogStore } from '~~/app/stores/catalogStore';
 import { useCartStore } from '~~/app/stores/cartStore';
+
+import CategoryHeroBanner from '~~/app/components/catalog/CategoryHeroBanner.vue';
+import CategoryAdvisor from '~~/app/components/catalog/CategoryAdvisor.vue';
+import CategoryInspirationWall from '~~/app/components/catalog/CategoryInspirationWall.vue';
 import FacetFilterBar from '~~/app/components/catalog/FacetFilterBar.vue';
 import CatalogGrid from '~~/app/components/catalog/CatalogGrid.vue';
-import TrustpilotBadge from '~~/app/components/common/TrustpilotBadge.vue';
-import { ChevronRight, Sparkles } from 'lucide-vue-next';
+import ShowroomModal from '~~/app/components/common/ShowroomModal.vue';
 
 const route = useRoute();
 const catalogStore = useCatalogStore();
+const cartStore = useCartStore();
 const { t } = useLocale();
 const slug = computed(() => route.params.slug as ProductCategory);
+const isShowroomModalOpen = ref(false);
 
 const currentMeta = computed(() => {
   const catKey = slug.value;
@@ -51,13 +56,89 @@ watch(
 
 const { filteredProducts, isLoading } = useCatalog();
 
-// SEO Head
-useHead({
-  title: computed(() => `${currentMeta.value.title} — Maxaro Showroom`),
-  meta: [{ name: 'description', content: computed(() => currentMeta.value.description) }],
+const config = useRuntimeConfig();
+const siteUrl = computed(() => config.public.siteUrl || 'https://maxaro-storefront.vercel.app');
+const categoryUrl = computed(() => `${siteUrl.value}/categorie/${slug.value}`);
+const heroCategoryImg = computed(
+  () =>
+    serverProducts.value?.[0]?.imageThumbnail ||
+    'https://media.maxaro.nl/product/Width800/8498/tesino-vrijstaand-bad-180x85cm-solid-surface-mat-wit-vsb11-mn.webp'
+);
+
+// Structured Data (Schema.org JSON-LD for Breadcrumbs & Collection)
+const categorySchema = computed(() => ({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${categoryUrl.value}/#breadcrumb`,
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: siteUrl.value,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: currentMeta.value.title,
+          item: categoryUrl.value,
+        },
+      ],
+    },
+    {
+      '@type': 'CollectionPage',
+      '@id': `${categoryUrl.value}/#webpage`,
+      url: categoryUrl.value,
+      name: `${currentMeta.value.title} kopen? | Maxaro`,
+      description: currentMeta.value.description,
+      breadcrumb: { '@id': `${categoryUrl.value}/#breadcrumb` },
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: serverProducts.value?.length || 0,
+        itemListElement: (serverProducts.value || []).slice(0, 12).map((prod, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          url: `${siteUrl.value}/product/${prod.slug}`,
+          name: prod.name,
+          image: prod.imageThumbnail,
+        })),
+      },
+    },
+  ],
+}));
+
+// SEO Meta Tags
+useSeoMeta({
+  title: computed(() => `${currentMeta.value.title} kopen? | Maxaro`),
+  description: computed(
+    () =>
+      currentMeta.value.description ||
+      `Bekijk het complete assortiment ${currentMeta.value.title.toLowerCase()} bij Maxaro. Direct uit voorraad leverbaar met 10 jaar garantie.`
+  ),
+  ogTitle: computed(() => `${currentMeta.value.title} kopen? | Maxaro Sanitair`),
+  ogDescription: computed(
+    () =>
+      currentMeta.value.description ||
+      `Bekijk het complete assortiment ${currentMeta.value.title.toLowerCase()} bij Maxaro.`
+  ),
+  ogImage: heroCategoryImg,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: computed(() => `${currentMeta.value.title} kopen? | Maxaro`),
+  twitterDescription: computed(() => currentMeta.value.description),
+  twitterImage: heroCategoryImg,
 });
 
-const cartStore = useCartStore();
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() => JSON.stringify(categorySchema.value)),
+    },
+  ],
+});
 
 async function handleAddToCart(product: Product) {
   if (product.category === 'vloertegels' || product.category === 'wandtegels') {
@@ -81,48 +162,42 @@ async function handleAddToCart(product: Product) {
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto px-4 py-6 sm:py-8 space-y-6">
-    <!-- Breadcrumbs -->
-    <nav class="flex items-center gap-2 text-xs text-neutral-500">
-      <NuxtLink to="/" class="hover:text-maxaro-blue transition-colors">{{ t('productDetail.home') }}</NuxtLink>
-      <ChevronRight class="w-3.5 h-3.5 text-neutral-400" />
-      <span class="text-neutral-400">{{ t('productDetail.sanitary') }}</span>
-      <ChevronRight class="w-3.5 h-3.5 text-neutral-400" />
-      <span class="font-bold text-neutral-800">{{ currentMeta.title }}</span>
-    </nav>
+  <div class="max-w-7xl mx-auto px-4 py-6 sm:py-8 space-y-8 pb-16">
+    <!-- 1. Elevated Category Hero Banner with Quick Chips & Breadcrumbs -->
+    <CategoryHeroBanner
+      :category="slug"
+      :title="currentMeta.title"
+      :subtitle="currentMeta.subtitle"
+      :description="currentMeta.description"
+      :total-count="catalogStore.allProducts.filter(p => p.category === slug).length"
+      :filtered-count="filteredProducts.length"
+      @open-showroom-modal="isShowroomModalOpen = true"
+    />
 
-    <!-- Category Header Hero -->
-    <div class="bg-gradient-to-r from-maxaro-surface-subtle via-white to-maxaro-surface-subtle border border-neutral-200 rounded-3xl p-6 sm:p-8">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="space-y-2 max-w-2xl">
-          <div class="flex items-center gap-2">
-            <span class="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-maxaro-blue bg-maxaro-blue-light px-2.5 py-0.5 rounded-full">
-              <Sparkles class="w-3 h-3" /> Maxaro
-            </span>
-            <span class="text-xs text-neutral-400 font-mono">{{ t('productDetail.deliveryPromise') }}</span>
-          </div>
-          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-maxaro-blue">
-            {{ currentMeta.title }}
-          </h1>
-          <p class="text-sm text-neutral-600 leading-relaxed">
-            {{ currentMeta.description }}
-          </p>
-        </div>
+    <!-- 2. Interactive Category Buyer's Guide & Material Compass -->
+    <CategoryAdvisor
+      :category="slug"
+    />
 
-        <div class="shrink-0 self-start md:self-center">
-          <TrustpilotBadge />
-        </div>
-      </div>
-    </div>
-
-    <!-- Facet Filter Bar (<4ms instant filtering) -->
+    <!-- 3. Sub-Second Interactive Filter Bar (<4ms instant compute) -->
     <FacetFilterBar />
 
-    <!-- Responsive Zero-CLS Catalog Grid -->
+    <!-- 4. Zero-CLS Product Grid -->
     <CatalogGrid
       :products="filteredProducts"
       :is-loading="isLoading"
       @add-to-cart="handleAddToCart"
+    />
+
+    <!-- 5. Real-Life Customer Inspiration Gallery Wall -->
+    <CategoryInspirationWall
+      :category="slug"
+    />
+
+    <!-- Showroom Modal -->
+    <ShowroomModal
+      :is-open="isShowroomModalOpen"
+      @close="isShowroomModalOpen = false"
     />
   </div>
 </template>

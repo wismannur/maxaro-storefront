@@ -2,28 +2,76 @@
 import type { Product } from '~~/shared/types';
 import { useCatalogStore } from '~~/app/stores/catalogStore';
 import { useCatalog } from '~~/app/composables/useCatalog';
+import { useCartStore } from '~~/app/stores/cartStore';
+import { useLocale } from '~~/app/composables/useLocale';
+
+import HomeHero from '~~/app/components/home/HomeHero.vue';
+import HomeAmbiences from '~~/app/components/home/HomeAmbiences.vue';
+import HomeCraftsmanship from '~~/app/components/home/HomeCraftsmanship.vue';
+import HomeShowroomFlagship from '~~/app/components/home/HomeShowroomFlagship.vue';
+import HomeTestimonials from '~~/app/components/home/HomeTestimonials.vue';
 import FacetFilterBar from '~~/app/components/catalog/FacetFilterBar.vue';
 import CatalogGrid from '~~/app/components/catalog/CatalogGrid.vue';
-import TrustpilotBadge from '~~/app/components/common/TrustpilotBadge.vue';
+import ShowroomModal from '~~/app/components/common/ShowroomModal.vue';
+
 import {
   Sparkles,
   ArrowRight,
-  ShieldCheck,
-  Truck,
-  Building2,
-  Clock,
-  CheckCircle2,
   Search,
+  SlidersHorizontal,
+  RotateCcw,
+  Zap,
 } from 'lucide-vue-next';
-
-import { useCartStore } from '~~/app/stores/cartStore';
-import { useLocale } from '~~/app/composables/useLocale';
-import ShowroomModal from '~~/app/components/common/ShowroomModal.vue';
 
 const catalogStore = useCatalogStore();
 const cartStore = useCartStore();
 const { t } = useLocale();
+const config = useRuntimeConfig();
 const isShowroomModalOpen = ref(false);
+
+const siteUrl = computed(() => config.public.siteUrl || 'https://maxaro-storefront.vercel.app');
+
+// Homepage SearchAction Structured Data (Schema.org JSON-LD)
+const websiteSchema = computed(() => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Maxaro',
+  url: siteUrl.value,
+  description: 'Specialist in hoogwaardig sanitair en tegels. 5.000 m² showroom in Roosendaal.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${siteUrl.value}/?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
+}));
+
+useSeoMeta({
+  title: 'Maxaro — Maximaal Geslaagd in Sanitair & Tegels',
+  description:
+    'Ontdek het complete assortiment hoogwaardig sanitair en tegels bij Maxaro. Vrijstaande baden, inloopdouches, badkamermeubels en tegels direct uit voorraad leverbaar. Bezoek onze 5.000 m² showroom in Roosendaal.',
+  ogTitle: 'Maxaro — Luxe Sanitair & Tegels | 5.000 m² Showroom',
+  ogDescription:
+    'Ontdek het complete assortiment hoogwaardig sanitair en tegels bij Maxaro. Vrijstaande baden, inloopdouches, badmeubels en design tegels.',
+  ogImage: 'https://media.maxaro.nl/product/Width800/8498/tesino-vrijstaand-bad-180x85cm-solid-surface-mat-wit-vsb11-mn.webp',
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Maxaro — Maximaal Geslaagd in Sanitair & Tegels',
+  twitterDescription:
+    'Vrijstaande baden, inloopdouches, badkamermeubels en tegels direct uit voorraad leverbaar.',
+  twitterImage: 'https://media.maxaro.nl/product/Width800/8498/tesino-vrijstaand-bad-180x85cm-solid-surface-mat-wit-vsb11-mn.webp',
+});
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() => JSON.stringify(websiteSchema.value)),
+    },
+  ],
+});
 
 // Fetch complete catalog for homepage showcase
 const { data: allCatalog } = await useAsyncData('home-catalog', () =>
@@ -95,110 +143,54 @@ async function handleAddToCart(product: Product) {
   }
 }
 
-function scrollToShowroom() {
-  const el = document.getElementById('showroom-experience');
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth' });
-    if (typeof history !== 'undefined') {
-      history.replaceState(history.state, '', '#showroom-experience');
-    }
-  }
+function scrollToCatalog() {
+  nextTick(() => {
+    setTimeout(() => {
+      const el = document.getElementById('catalog-collection');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+        if (typeof history !== 'undefined') {
+          history.replaceState(history.state, '', '#catalog-collection');
+        }
+      }
+    }, 80);
+  });
+}
+
+function handleStyleSelected(_finish: string | null) {
+  scrollToCatalog();
 }
 
 onMounted(() => {
   if (typeof window !== 'undefined' && window.location.hash === '#catalog-collection') {
-    const el = document.getElementById('catalog-collection');
-    if (el) {
-      setTimeout(() => {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
+    scrollToCatalog();
   }
 });
 </script>
 
 <template>
   <div class="space-y-12 sm:space-y-16 pb-16">
-    <!-- Hero Showroom Section -->
-    <section class="relative bg-gradient-to-b from-maxaro-surface-subtle via-white to-white pt-8 sm:pt-14 pb-10 border-b border-maxaro-border/60">
-      <div class="max-w-7xl mx-auto px-4">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <!-- Hero Text -->
-          <div class="lg:col-span-7 space-y-5 text-left">
-            <div class="inline-flex items-center gap-2 rounded-full bg-maxaro-blue-light border border-maxaro-blue/20 px-3 py-1 text-xs font-semibold text-maxaro-blue">
-              <Sparkles class="w-3.5 h-3.5 text-maxaro-accent" />
-              <span>{{ t('hero.badge') }}</span>
-            </div>
+    <!-- 1. Cinematic Architectural Hero Section with Curated Hotspots -->
+    <HomeHero
+      @explore-catalog="scrollToCatalog"
+      @open-showroom-modal="isShowroomModalOpen = true"
+    />
 
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-neutral-900 tracking-tight leading-[1.15]">
-              {{ t('hero.title') }}
-            </h1>
+    <!-- 2. Curated Interior Styles & Moodboards (Shop by Style) -->
+    <HomeAmbiences
+      @style-selected="handleStyleSelected"
+    />
 
-            <p class="text-sm sm:text-base text-neutral-600 leading-relaxed max-w-2xl">
-              {{ t('hero.description') }}
-            </p>
-
-            <!-- Hero Action CTAs -->
-            <div class="flex flex-wrap items-center gap-3 pt-2">
-              <NuxtLink
-                to="/categorie/vrijstaande-baden"
-                class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-maxaro-blue hover:bg-maxaro-blue-hover text-white text-sm font-bold rounded-2xl shadow-card-hover transition-all active:scale-95"
-              >
-                <span>{{ t('hero.viewCollection') }}</span>
-                <ArrowRight class="w-4 h-4" />
-              </NuxtLink>
-
-              <a
-                href="#showroom-experience"
-                @click.prevent="scrollToShowroom"
-                class="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-neutral-100 hover:bg-neutral-200 active:scale-95 text-neutral-800 text-sm font-bold rounded-2xl transition-all cursor-pointer"
-              >
-                <Building2 class="w-4 h-4 text-neutral-600" />
-                <span>{{ t('hero.visitShowroom') }}</span>
-              </a>
-            </div>
-
-            <!-- Trustpilot Callout -->
-            <div class="pt-4 border-t border-neutral-200/80">
-              <TrustpilotBadge />
-            </div>
-          </div>
-
-          <!-- Hero Image Showcase -->
-          <div class="lg:col-span-5 relative">
-            <div class="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border border-neutral-200">
-              <NuxtImg
-                src="https://media.maxaro.nl/Width1240/152649/1144x1060_test-ingangbanner_completebadkamers_desktop.jpg.webp"
-                alt="Maxaro Luxe Badkamer Showroom"
-                preset="heroProduct"
-                width="800"
-                height="600"
-                loading="eager"
-                decoding="async"
-                fetchpriority="high"
-                class="w-full h-full object-cover"
-              />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
-                <div class="text-white space-y-1">
-                  <span class="text-xs font-mono uppercase tracking-widest text-neutral-300">{{ t('hero.flagshipBadge') }}</span>
-                  <p class="text-lg font-bold">{{ t('hero.flagshipTitle') }}</p>
-                  <p class="text-xs text-neutral-200">{{ t('hero.flagshipSubtitle') }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Category Visual Rails -->
+    <!-- 3. Architectural Category Visual Rails -->
     <section class="max-w-7xl mx-auto px-4">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
+        <div class="space-y-1 text-left">
+          <span class="text-[11px] font-bold text-maxaro-blue uppercase tracking-wider font-mono">
             {{ t('categories.title') }}
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">
+            {{ t('categories.subtitle') }}
           </h2>
-          <p class="text-xs text-neutral-500 mt-0.5">{{ t('categories.subtitle') }}</p>
         </div>
       </div>
 
@@ -211,56 +203,96 @@ onMounted(() => {
           v-for="cat in categoryCards"
           :key="cat.slug"
           :to="`/categorie/${cat.slug}`"
-          class="group relative flex flex-col justify-end overflow-hidden rounded-2xl border border-neutral-200 bg-white p-4 transition-all duration-300 hover:shadow-card-hover hover:border-neutral-300 aspect-[3/4] w-44 sm:w-56 lg:w-auto shrink-0 snap-start"
+          class="group relative flex flex-col justify-end overflow-hidden rounded-3xl border border-neutral-200/90 bg-white p-4 sm:p-5 transition-all duration-300 hover:shadow-card-hover hover:border-neutral-300 aspect-[3/4] w-48 sm:w-56 lg:w-auto shrink-0 snap-start"
         >
           <NuxtImg
             :src="cat.image"
             :alt="cat.title"
-            width="300"
-            height="400"
+            width="320"
+            height="420"
             loading="lazy"
-            class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-          <div class="relative z-10 text-white space-y-1">
-            <span class="text-[10px] font-mono text-neutral-300 uppercase">{{ cat.count }}</span>
-            <h3 class="text-sm font-bold leading-tight group-hover:text-maxaro-accent transition-colors">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+          <div class="relative z-10 text-white space-y-1 text-left">
+            <span class="inline-block text-[10px] font-mono text-neutral-300 uppercase bg-white/15 backdrop-blur-xs px-2 py-0.5 rounded-md">
+              {{ cat.count }}
+            </span>
+            <h3 class="text-sm sm:text-base font-bold leading-tight group-hover:text-maxaro-accent transition-colors">
               {{ cat.title }}
             </h3>
-            <p class="text-[11px] text-neutral-200 line-clamp-1">{{ cat.subtitle }}</p>
+            <p class="text-[11px] text-neutral-200 line-clamp-1 opacity-90">{{ cat.subtitle }}</p>
           </div>
         </NuxtLink>
       </div>
     </section>
 
-    <!-- Sub-Second Interactive Catalog Engine Section -->
-    <section id="catalog-collection" class="max-w-7xl mx-auto px-4 space-y-6 scroll-mt-44 sm:scroll-mt-48 pt-2">
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-2 border-b border-neutral-200 pb-4">
+    <!-- 4. Material Mastery & Craftsmanship Section -->
+    <HomeCraftsmanship />
+
+    <!-- 5. Sub-Second Interactive Catalog Engine Section -->
+    <section id="catalog-collection" class="max-w-7xl mx-auto px-4 space-y-6 scroll-mt-44 sm:scroll-mt-48 pt-4">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-neutral-200 pb-4 text-left">
         <div>
+          <!-- Search Query State -->
           <template v-if="catalogStore.searchQuery.trim()">
             <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-maxaro-blue uppercase tracking-wider mb-1 bg-maxaro-blue-light px-2.5 py-0.5 rounded-full">
               <Search class="w-3 h-3" />
               <span>{{ t('catalog.searchBadge') }}</span>
             </div>
-            <h2 class="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight flex items-center gap-2 flex-wrap">
+            <h2 class="text-xl sm:text-3xl font-black text-neutral-900 tracking-tight flex items-center gap-2 flex-wrap">
               <span>{{ t('catalog.searchTitlePrefix') }}</span>
-              <span class="text-maxaro-blue underline decoration-maxaro-blue/30 italic">"{{ catalogStore.searchQuery }}"</span>
+              <span class="text-maxaro-blue underline decoration-maxaro-blue/30 italic font-serif font-normal">"{{ catalogStore.searchQuery }}"</span>
             </h2>
-            <p class="text-xs text-neutral-500">
+            <p class="text-xs text-neutral-500 mt-1">
               {{ t('catalog.searchCount', { count: filteredProducts.length }) }}
             </p>
           </template>
+
+          <!-- Selected Finish / Style Active State -->
+          <template v-else-if="catalogStore.activeFinish">
+            <div class="inline-flex items-center gap-1.5 text-[11px] font-bold text-maxaro-accent uppercase tracking-wider mb-1 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/60">
+              <SlidersHorizontal class="w-3 h-3" />
+              <span>Gefilterd op: {{ catalogStore.activeFinish }}</span>
+            </div>
+            <h2 class="text-xl sm:text-3xl font-black text-neutral-900 tracking-tight">
+              {{ t('catalog.title') }}
+            </h2>
+            <p class="text-xs text-neutral-500 mt-1">
+              {{ t('catalog.subtitle') }}
+            </p>
+          </template>
+
+          <!-- Default Collection State -->
           <template v-else>
             <div class="inline-flex items-center gap-1 text-[11px] font-bold text-trust-green uppercase tracking-wider mb-1">
               <Sparkles class="w-3 h-3" /> {{ t('catalog.badge') }}
             </div>
-            <h2 class="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">
+            <h2 class="text-xl sm:text-3xl font-black text-neutral-900 tracking-tight">
               {{ t('catalog.title') }}
             </h2>
-            <p class="text-xs text-neutral-500">
+            <p class="text-xs text-neutral-500 mt-1">
               {{ t('catalog.subtitle') }}
             </p>
           </template>
+        </div>
+
+        <!-- Telemetry & Active Filter Reset Trigger -->
+        <div class="flex items-center gap-2">
+          <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-100 border border-neutral-200/80 text-[11px] font-mono text-neutral-600">
+            <Zap class="w-3 h-3 text-trust-green" />
+            <span>&lt;4ms in-memory compute</span>
+          </div>
+
+          <button
+            v-if="catalogStore.activeFinish || catalogStore.searchQuery"
+            type="button"
+            @click="catalogStore.resetFilters()"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-xs font-bold text-neutral-700 transition-colors cursor-pointer"
+          >
+            <RotateCcw class="w-3 h-3" />
+            <span>{{ t('catalog.resetFilters') }}</span>
+          </button>
         </div>
       </div>
 
@@ -275,69 +307,13 @@ onMounted(() => {
       />
     </section>
 
-    <!-- Showroom Experience Section (Supports both #showroom-experience and #showrooms anchors) -->
-    <div id="showrooms" class="scroll-mt-32 sm:scroll-mt-36"></div>
-    <section id="showroom-experience" class="max-w-7xl mx-auto px-4 pt-8 scroll-mt-32 sm:scroll-mt-36">
-      <div class="bg-maxaro-surface-subtle border border-maxaro-border rounded-3xl p-6 sm:p-10">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          <div class="space-y-4">
-            <span class="text-xs font-mono font-bold uppercase tracking-wider text-maxaro-blue">
-              {{ t('showroomSection.badge') }}
-            </span>
-            <h2 class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">
-              {{ t('showroomSection.title') }}
-            </h2>
-            <p class="text-xs sm:text-sm text-neutral-600 leading-relaxed">
-              {{ t('showroomSection.description') }}
-            </p>
+    <!-- 6. Flagship 5.000m² Showroom Experience Section -->
+    <HomeShowroomFlagship
+      @open-showroom-modal="isShowroomModalOpen = true"
+    />
 
-            <ul class="space-y-2 text-xs text-neutral-700">
-              <li class="flex items-center gap-2 font-medium">
-                <CheckCircle2 class="w-4 h-4 text-trust-green" />
-                <span>{{ t('showroomSection.feature1') }}</span>
-              </li>
-              <li class="flex items-center gap-2 font-medium">
-                <CheckCircle2 class="w-4 h-4 text-trust-green" />
-                <span>{{ t('showroomSection.feature2') }}</span>
-              </li>
-              <li class="flex items-center gap-2 font-medium">
-                <CheckCircle2 class="w-4 h-4 text-trust-green" />
-                <span>{{ t('showroomSection.feature3') }}</span>
-              </li>
-            </ul>
-
-            <div class="pt-2">
-              <button
-                type="button"
-                @click="isShowroomModalOpen = true"
-                class="inline-flex items-center gap-1.5 text-xs font-bold text-maxaro-blue hover:text-maxaro-blue-hover underline cursor-pointer"
-              >
-                <span>{{ t('showroomSection.ctaHoursRoute') }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3">
-            <div class="aspect-square rounded-2xl overflow-hidden border border-neutral-200">
-              <NuxtImg
-                src="https://media.maxaro.nl/Width1240/152610/ingangbanner_inspiratie_desktop.jpg.webp"
-                alt="Showroom Inspiratie Roosendaal"
-                class="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-            <div class="aspect-square rounded-2xl overflow-hidden border border-neutral-200">
-              <NuxtImg
-                src="https://media.maxaro.nl/Width1240/152609/ingangbanner_completetoiletruimtes_desktop.jpg.webp"
-                alt="Showroom Badmeubels & Ruimtes"
-                class="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- 7. Verified Transformations & Customer Stories -->
+    <HomeTestimonials />
 
     <!-- Interactive Showroom Opening Hours & Route Modal -->
     <ShowroomModal

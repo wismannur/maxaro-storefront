@@ -129,26 +129,29 @@ const formattedExpiry = computed(() => {
   >
     <div
       v-if="isShowroomPassModalOpen && activeShowroomPass"
-      class="fixed inset-0 z-[160] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto print:bg-white print:p-0 print:static print:overflow-visible"
+      class="fixed inset-0 z-[160] bg-neutral-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto print:bg-white print:p-0 print:static print:overflow-visible"
       role="dialog"
       aria-modal="true"
       aria-labelledby="showroom-pass-title"
       @click.self="closeModal"
     >
       <div
-        class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden my-4 sm:my-6 print:border-none print:shadow-none print:my-0"
+        class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-neutral-200/90 overflow-hidden my-4 sm:my-6 print:border-none print:shadow-none print:my-0 transition-all text-left"
       >
         <!-- Modal Header -->
-        <div class="bg-gradient-to-r from-maxaro-blue via-[#12365e] to-maxaro-blue-hover text-white p-5 sm:p-6 print:bg-white print:text-neutral-900 print:border-b-2 print:border-neutral-900">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="p-2.5 rounded-2xl bg-white/10 text-white backdrop-blur-sm print:hidden">
+        <div class="relative bg-gradient-to-r from-neutral-950 via-maxaro-blue to-neutral-900 text-white p-6 sm:p-7 overflow-hidden print:bg-white print:text-neutral-900 print:border-b-2 print:border-neutral-900">
+          <!-- Ambient Glow -->
+          <div class="absolute -top-20 -right-20 w-48 h-48 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
+
+          <div class="relative z-10 flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+              <div class="p-2.5 rounded-2xl bg-white/10 text-white backdrop-blur-md border border-white/15 shadow-xs print:hidden">
                 <Building2 class="w-6 h-6 text-trust-green" />
               </div>
               <div>
-                <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-bold text-trust-green uppercase tracking-wider mb-1 print:text-neutral-600 print:border">
-                  <Sparkles class="w-3 h-3 text-trust-green" />
-                  <span>Omnichannel Showroom Pass</span>
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 text-[10px] font-bold text-amber-300 uppercase tracking-wider font-mono mb-1 print:text-neutral-600 print:border">
+                  <Sparkles class="w-3 h-3" />
+                  <span>VIP Showroom Pass &amp; Offerte</span>
                 </div>
                 <h3 id="showroom-pass-title" class="font-black text-lg sm:text-xl text-white print:text-neutral-900 leading-tight">
                   {{ t('showroomPass.modalTitle') }}
@@ -162,7 +165,7 @@ const formattedExpiry = computed(() => {
             <button
               type="button"
               @click="closeModal"
-              class="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer print:hidden"
+              class="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer print:hidden border border-white/10"
               :aria-label="t('checkoutModal.cancel')"
             >
               <X class="w-5 h-5" />
@@ -171,12 +174,12 @@ const formattedExpiry = computed(() => {
         </div>
 
         <!-- Modal Body -->
-        <div class="p-5 sm:p-6 space-y-6 max-h-[75vh] overflow-y-auto print:max-h-none print:overflow-visible">
-          <!-- Top Hero: QR Code & Unique Offerte Identifier -->
-          <div class="bg-neutral-50 rounded-2xl border border-neutral-200 p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
+        <div class="p-5 sm:p-7 space-y-6 max-h-[75vh] overflow-y-auto print:max-h-none print:overflow-visible">
+          <!-- Top Hero: QR Code & Unique Offerte Identifier (Boarding Pass Luxury Style) -->
+          <div class="bg-[#FAF9F5] rounded-3xl border border-amber-200/80 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-center gap-6">
             <!-- QR Code Box -->
-            <div class="relative bg-white p-3 rounded-2xl border-2 border-maxaro-blue/20 shadow-xs shrink-0 text-center flex flex-col items-center">
-              <div v-if="isGeneratingQr" class="w-[180px] h-[180px] flex items-center justify-center text-neutral-400">
+            <div class="relative bg-white p-3.5 rounded-2xl border-2 border-maxaro-blue/20 shadow-sm shrink-0 text-center flex flex-col items-center">
+              <div v-if="isGeneratingQr" class="w-[170px] h-[170px] flex items-center justify-center text-neutral-400">
                 <QrCode class="w-8 h-8 animate-pulse text-maxaro-blue" />
               </div>
               <img
@@ -185,23 +188,23 @@ const formattedExpiry = computed(() => {
                 :alt="`QR Code ${activeShowroomPass.passId}`"
                 class="w-[160px] h-[160px] sm:w-[170px] sm:h-[170px] object-contain rounded-lg"
               />
-              <span class="text-[10px] font-mono text-neutral-500 mt-1 uppercase font-bold tracking-wider">{{ t('showroomPass.scanInShowroom') }}</span>
+              <span class="text-[10px] font-mono text-maxaro-blue mt-1.5 uppercase font-bold tracking-wider">{{ t('showroomPass.scanInShowroom') }}</span>
             </div>
 
             <!-- Pass Details & Actions -->
-            <div class="space-y-3 flex-1 text-center sm:text-left w-full">
+            <div class="space-y-3.5 flex-1 text-center sm:text-left w-full">
               <div>
-                <span class="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider block">
+                <span class="text-[11px] font-bold text-neutral-500 uppercase tracking-wider block font-mono">
                   {{ t('showroomPass.quoteReferenceCode') }}
                 </span>
-                <div class="flex items-center justify-center sm:justify-start gap-2 mt-1">
-                  <span class="text-xl sm:text-2xl font-mono font-black text-neutral-900 tracking-tight bg-white px-3 py-1 rounded-xl border border-neutral-200 shadow-2xs">
+                <div class="flex items-center justify-center sm:justify-start gap-2.5 mt-1">
+                  <span class="text-xl sm:text-2xl font-mono font-black text-neutral-900 tracking-tight bg-white px-3.5 py-1.5 rounded-2xl border border-neutral-200 shadow-2xs">
                     {{ activeShowroomPass.passId }}
                   </span>
                   <button
                     type="button"
                     @click="handleCopyCode"
-                    class="p-2 rounded-xl border border-neutral-200 hover:bg-neutral-100 text-neutral-600 transition-colors print:hidden cursor-pointer"
+                    class="p-2.5 rounded-xl border border-neutral-200 hover:bg-neutral-100 text-neutral-600 transition-colors print:hidden cursor-pointer active:scale-95 shadow-2xs"
                     :title="t('showroomPass.copyLink')"
                   >
                     <Check v-if="isCopied" class="w-4 h-4 text-trust-green" />
@@ -211,9 +214,9 @@ const formattedExpiry = computed(() => {
               </div>
 
               <!-- Expiry & Scan Instructions -->
-              <div class="p-3 bg-white rounded-xl border border-neutral-200/80 space-y-1.5 text-xs text-neutral-700">
+              <div class="p-3.5 bg-white rounded-2xl border border-neutral-200/80 space-y-1.5 text-xs text-neutral-700 shadow-2xs">
                 <div class="flex items-center gap-1.5 font-bold text-neutral-900">
-                  <Calendar class="w-3.5 h-3.5 text-maxaro-blue shrink-0" />
+                  <Calendar class="w-3.5 h-3.5 text-maxaro-accent shrink-0" />
                   <span>{{ t('showroomPass.validUntil', { date: formattedExpiry }) }}</span>
                 </div>
                 <p class="text-[11px] text-neutral-600 leading-relaxed">
@@ -222,11 +225,11 @@ const formattedExpiry = computed(() => {
               </div>
 
               <!-- Print & Share Actions -->
-              <div class="flex flex-wrap items-center gap-2 pt-1 print:hidden">
+              <div class="flex flex-wrap items-center gap-2 pt-0.5 print:hidden">
                 <button
                   type="button"
                   @click="handlePrint"
-                  class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-maxaro-blue text-white hover:bg-maxaro-blue-hover text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                  class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-maxaro-blue text-white hover:bg-maxaro-blue-hover text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
                 >
                   <Printer class="w-3.5 h-3.5" />
                   <span>{{ t('showroomPass.printPass') }}</span>
@@ -235,7 +238,7 @@ const formattedExpiry = computed(() => {
                 <button
                   type="button"
                   @click="handleCopyCode"
-                  class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-100 text-xs font-bold text-neutral-700 transition-all cursor-pointer"
+                  class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-100 text-xs font-bold text-neutral-700 transition-all cursor-pointer shadow-2xs"
                 >
                   <Copy class="w-3.5 h-3.5" />
                   <span>{{ isCopied ? t('showroomPass.copied') : t('showroomPass.copyLink') }}</span>
@@ -245,8 +248,8 @@ const formattedExpiry = computed(() => {
           </div>
 
           <!-- Target Showroom Selection -->
-          <div class="space-y-2">
-            <label class="block text-xs font-bold text-neutral-800 uppercase tracking-wider">
+          <div class="space-y-2.5">
+            <label class="block text-xs font-bold text-neutral-800 uppercase tracking-wider font-mono">
               {{ t('showroomPass.preferredShowroom') }}
             </label>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 print:hidden">

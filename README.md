@@ -249,47 +249,6 @@ The repository is configured for edge execution on **Vercel Pro** or **Cloudflar
 }
 ```
 
----
-
-## 🎥 90-Second Walkthrough Script
-
-When presenting to **Lennard Bakhuys (Projectmanager E-commerce at Maxaro)**:
-
-* **0:00 - 0:20 (Brand Scale & Trust):**
-  > *"Hi Lennard, Wisman hier. Big fan of Maxaro's omnichannel leadership in the Netherlands and your 4.6 Trustpilot rating across 34,000+ reviews. Customer trust is clearly the foundation of your success."*
-* **0:20 - 0:40 (The Mobile Friction on Legacy Stacks):**
-  > *"While analyzing maxaro.nl on a mobile 4G connection, opening facet filters triggers noticeable layout shift (CLS 0.28) and adding items to the cart takes over 1.8 seconds due to monolithic page reloads. For high-ticket items (€1,500+ AOV), that hesitation costs conversions."*
-* **0:40 - 1:15 (Live Nuxt 4 MVP Demonstration):**
-  > *"To show what's possible, I built this decoupled Nuxt 4 + Nitro Edge prototype. Notice what happens when I filter by finish: Mat Zwart, Chroom, Eiken — the catalog reacts in 0.8 milliseconds without network lag. When I click 'In Winkelmand', the cart drawer slides in with 0ms perceived delay, and our Nitro edge route prepares the checkout handshake in just 0.16 milliseconds with full server-side price verification."*
-* **1:15 - 1:30 (Casual Close & Hub Vision):**
-  > *"With the ambition of establishing the Maxaro Digital Hub in Indonesia, having this level of frontend engineering velocity is a massive competitive advantage. I'd love to share the code and exchange ideas with your digital team. Geen verplichtingen — feel free to explore the repository and live demo below!"*
-
----
-
-## ✉️ Outbound Dispatch Message
-
-### LinkedIn InMail / Email Template:
-```text
-Subject: Sub-seconde Nuxt 4 storefront prototype voor Maxaro
-
-Beste Lennard,
-
-Met veel bewondering volg ik Maxaro’s groei en jullie uitzonderlijke Trustpilot-score (4.6 uit 34.000+ reviews).
-
-Ter voorbereiding op onze kennismaking en met het oog op het opzetten van de Maxaro Digital Hub in Indonesië, heb ik een interactief Nuxt 4 + Nitro Edge storefront-prototype gebouwd om te demonstreren hoe we mobiele laadtijden naar onder de 800ms kunnen brengen en de winkelwagen-ervaring volledig direct (0ms lag) kunnen maken.
-
-Ik heb een korte video van 90 seconden opgenomen waarin ik de live monolith vergelijk met het Nuxt 4-prototype:
-👉 Loom Video: https://www.loom.com/share/maxaro-nuxt4-modernization-demo
-👉 Live Demo: https://maxaro-storefront.wismannur.pro
-👉 GitHub Repository: https://github.com/wismannur/maxaro-revamp
-👉 Architecture & Security Whitepaper: https://github.com/wismannur/maxaro-revamp/blob/main/ARCHITECTURE.md
-
-Geheel vrijblijvend — ik deel de architectuur en code met veel plezier als input voor jullie engineering roadmap.
-
-Hartelijke groet,
-Wisman Nur
-Senior Frontend & E-Commerce Architect
-```
 
 ---
 
