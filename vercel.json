@@ -1,0 +1,4 @@
+{
+  "framework": "nuxtjs",
+  "regions": ["arn1", "fra1", "cdg1", "lhr1"]
+}
