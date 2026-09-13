@@ -4,10 +4,16 @@ import type { Product } from '~~/shared/types';
 import { useCurrency } from '~~/app/composables/useCurrency';
 import { useLocale } from '~~/app/composables/useLocale';
 import { useCartStore } from '~~/app/stores/cartStore';
+
 import MaterialSwatch from '~~/app/components/catalog/MaterialSwatch.vue';
 import TileCalculator from '~~/app/components/catalog/TileCalculator.vue';
 import ShowroomModal from '~~/app/components/common/ShowroomModal.vue';
 import ProductGalleryModal from '~~/app/components/catalog/ProductGalleryModal.vue';
+import ProductTechDrawing from '~~/app/components/product/ProductTechDrawing.vue';
+import ProductSuiteBundle from '~~/app/components/product/ProductSuiteBundle.vue';
+import ProductMaterialCare from '~~/app/components/product/ProductMaterialCare.vue';
+import ShowroomBayBadge from '~~/app/components/catalog/ShowroomBayBadge.vue';
+
 import {
   Check,
   Truck,
@@ -27,6 +33,7 @@ import {
   CheckCircle2,
   Clock,
   Maximize2,
+  Sparkle,
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -50,8 +57,8 @@ const categoryVariants = computed(() => {
   return catalog.value.filter((p) => p.category === product.value?.category);
 });
 
-// Cross-sell complementary products
-const crossSellProducts = computed(() => {
+// Curated complementary suite items (e.g. Bad + Kraan + Tegel)
+const complementarySuiteProducts = computed(() => {
   if (!product.value || !catalog.value) return [];
   const p = product.value;
   let targetCategories: string[] = [];
@@ -149,14 +156,10 @@ function handleSaveToShowroomPass() {
     cartStore.generateShowroomPass();
   }
 }
-
-function handleAddCrossSell(item: Product) {
-  cartStore.addItem(item);
-}
 </script>
 
 <template>
-  <div v-if="product" class="max-w-7xl mx-auto px-4 py-5 sm:py-7 space-y-7 pb-24 md:pb-10">
+  <div v-if="product" class="max-w-7xl mx-auto px-4 py-5 sm:py-7 space-y-8 pb-24 md:pb-12 text-left">
     <!-- Breadcrumbs -->
     <nav class="flex items-center gap-2 text-xs text-neutral-500 overflow-x-auto no-scrollbar py-0.5">
       <NuxtLink to="/" class="hover:text-maxaro-blue transition-colors">{{ t('productDetail.home') }}</NuxtLink>
@@ -171,14 +174,14 @@ function handleAddCrossSell(item: Product) {
     <!-- Harmonized 2-Column Desktop Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
       
-      <!-- ================= LEFT COLUMN: VISUALS, STORY & SPECIFICATIONS (7 cols) ================= -->
+      <!-- ================= LEFT COLUMN: VISUALS, STORY, BLUEPRINTS & CRAFTSMANSHIP (7 cols) ================= -->
       <div class="lg:col-span-7 space-y-6">
         
-        <!-- 1. Media Gallery -->
+        <!-- 1. Media Gallery with Macro Zoom & Physical Showroom Bay Pin -->
         <div class="space-y-3">
-          <!-- Main Hero Image Container (Clickable for Fullscreen Slide Modal) -->
+          <!-- Main Hero Image Container -->
           <div
-            class="group relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-neutral-200 bg-neutral-100 shadow-sm cursor-zoom-in select-none"
+            class="group relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-neutral-200/90 bg-neutral-100 shadow-sm cursor-zoom-in select-none"
             @click="openGalleryModal()"
             role="button"
             tabindex="0"
@@ -196,35 +199,33 @@ function handleAddCrossSell(item: Product) {
               loading="eager"
               decoding="async"
               fetchpriority="high"
-              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
             />
 
-            <!-- Finish Badge -->
-            <div class="absolute top-4 left-4 flex items-center gap-2 rounded-full bg-white/95 backdrop-blur-xs px-3 py-1.5 text-xs font-bold text-neutral-800 shadow-xs border border-neutral-200">
+            <!-- Texture & Tactile Finish Badge Top-Left -->
+            <div class="absolute top-4 left-4 flex items-center gap-2 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 text-xs font-bold text-neutral-800 shadow-xs border border-neutral-200">
               <MaterialSwatch :finish="product.finish" size="sm" />
               <span>{{ product.finish }}</span>
             </div>
 
-            <!-- Showroom Presence Flag -->
-            <div
-              v-if="product.showroomAvailableRoosendaal"
-              class="absolute top-4 right-4 flex items-center gap-1.5 rounded-full bg-maxaro-blue/90 backdrop-blur-xs px-3 py-1.5 text-xs font-semibold text-white shadow-xs"
-            >
-              <Building2 class="w-3.5 h-3.5 text-trust-green" />
-              <span class="hidden sm:inline">{{ t('productDetail.inShowroomRoosendaal') }}</span>
-              <span class="sm:hidden">{{ t('productDetail.inShowroomShort') }}</span>
-            </div>
+            <!-- Physical Showroom Bay Location Badge Top-Right -->
+            <ShowroomBayBadge
+              :category="product.category"
+              :is-available="product.showroomAvailableRoosendaal"
+              class="absolute top-4 right-4"
+              @open-showroom="isShowroomModalOpen = true"
+            />
 
-            <!-- Fullscreen Zoom Trigger Badge -->
+            <!-- Fullscreen Zoom Trigger Badge Bottom-Right -->
             <button
               type="button"
               @click.stop="openGalleryModal()"
-              class="absolute bottom-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 hover:bg-white active:scale-95 text-neutral-800 text-xs font-semibold backdrop-blur-md shadow-md border border-neutral-200/90 transition-all cursor-pointer group-hover:scale-105"
+              class="absolute bottom-4 right-4 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/95 hover:bg-white active:scale-95 text-neutral-800 text-xs font-semibold backdrop-blur-md shadow-md border border-neutral-200 transition-all cursor-pointer group-hover:scale-105"
               :title="t('productDetail.viewFullscreen')"
               :aria-label="t('productDetail.zoomImage')"
             >
               <Maximize2 class="w-3.5 h-3.5 text-maxaro-blue" />
-              <span class="hidden sm:inline text-[11px] font-bold">{{ t('productDetail.zoomImage') }}</span>
+              <span class="text-[11px] font-bold">Zoom 1:1</span>
             </button>
           </div>
 
@@ -244,8 +245,8 @@ function handleAddCrossSell(item: Product) {
           </div>
         </div>
 
-        <!-- 2. Material & Quality USPs Card (Balances Visual Weight) -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-neutral-50/80 rounded-2xl border border-neutral-200 text-xs">
+        <!-- 2. Material & Quality USPs Ribbon -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-neutral-50/90 rounded-3xl border border-neutral-200 text-xs">
           <div class="space-y-1">
             <div class="flex items-center gap-1.5 font-bold text-neutral-900">
               <Award class="w-4 h-4 text-maxaro-blue shrink-0" />
@@ -279,7 +280,7 @@ function handleAddCrossSell(item: Product) {
           </div>
         </div>
 
-        <!-- 3. Product Editorial & Description -->
+        <!-- 3. Product Editorial & Architectural Story -->
         <div class="p-6 bg-white rounded-3xl border border-neutral-200 space-y-3 shadow-xs">
           <div class="flex items-center gap-2 text-neutral-900 font-black text-base">
             <Layers class="w-5 h-5 text-maxaro-blue" />
@@ -309,60 +310,21 @@ function handleAddCrossSell(item: Product) {
           </div>
         </div>
 
-        <!-- 4. Technical Specifications Table (Moved to Left Column for Natural Reading Balance) -->
-        <div class="p-6 bg-white rounded-3xl border border-neutral-200 space-y-4 shadow-xs">
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-black text-neutral-900 tracking-tight flex items-center gap-2">
-              <Ruler class="w-4 h-4 text-maxaro-blue" />
-              <span>{{ t('productDetail.specsTitle') }}</span>
-            </h3>
-            <span class="font-mono text-xs text-neutral-400">SKU: {{ product.sku }}</span>
-          </div>
+        <!-- 4. CAD Architectural Blueprint & Technical Spec Sheet -->
+        <ProductTechDrawing :product="product" />
 
-          <div class="rounded-2xl border border-neutral-200 overflow-hidden">
-            <table class="w-full text-left text-xs border-collapse">
-              <tbody class="divide-y divide-neutral-200">
-                <tr class="bg-neutral-50/50">
-                  <td class="py-3 px-4 font-bold text-neutral-600 w-2/5">{{ t('productDetail.skuLabel') }}</td>
-                  <td class="py-3 px-4 font-mono font-bold text-neutral-900">{{ product.sku }}</td>
-                </tr>
-                <tr>
-                  <td class="py-3 px-4 font-bold text-neutral-600">{{ t('productDetail.categoryLabel') }}</td>
-                  <td class="py-3 px-4 font-medium text-neutral-900">{{ t(`categoriesMeta.${product.category}.title`) || product.categoryLabelNl }}</td>
-                </tr>
-                <tr class="bg-neutral-50/50">
-                  <td class="py-3 px-4 font-bold text-neutral-600">{{ t('productDetail.finishLabel') }}</td>
-                  <td class="py-3 px-4 font-medium text-neutral-900 flex items-center gap-2">
-                    <MaterialSwatch :finish="product.finish" size="sm" />
-                    <span>{{ product.finish }}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="py-3 px-4 font-bold text-neutral-600">{{ t('productDetail.dimensionsLabel') }}</td>
-                  <td class="py-3 px-4 font-mono font-medium text-neutral-900">
-                    {{ formatDimensions(product.dimensions.lengthCm, product.dimensions.widthCm, product.dimensions.heightCm, product.dimensions.thicknessMm) }}
-                  </td>
-                </tr>
-                <tr v-if="product.packageCoverageM2" class="bg-neutral-50/50">
-                  <td class="py-3 px-4 font-bold text-neutral-600">{{ t('productDetail.packageContentLabel') }}</td>
-                  <td class="py-3 px-4 font-mono font-bold text-maxaro-blue">
-                    {{ t('productDetail.packageContentValue', { coverage: product.packageCoverageM2, pieces: product.pieceCountPerPackage || 4 }) }}
-                  </td>
-                </tr>
-                <tr :class="product.packageCoverageM2 ? '' : 'bg-neutral-50/50'">
-                  <td class="py-3 px-4 font-bold text-neutral-600">{{ t('productDetail.warrantyLabel') }}</td>
-                  <td class="py-3 px-4 font-medium text-neutral-900">{{ t('productDetail.warrantyValue', { years: product.warrantyYears }) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <!-- 5. Material Care, Maintenance & Warranty Details -->
+        <ProductMaterialCare
+          :finish="product.finish"
+          :category="product.category"
+          :warranty-years="product.warrantyYears"
+        />
 
-        <!-- 5. Megashowroom Experience Card -->
-        <div class="p-6 bg-gradient-to-br from-neutral-900 via-maxaro-blue to-neutral-900 text-white rounded-3xl shadow-md space-y-4">
+        <!-- 6. Omnichannel Megashowroom Experience Card -->
+        <div class="p-6 sm:p-7 bg-gradient-to-br from-neutral-900 via-maxaro-blue to-neutral-900 text-white rounded-3xl shadow-lg space-y-4">
           <div class="flex items-start justify-between gap-4">
             <div class="space-y-1">
-              <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 text-trust-green text-[10px] font-bold uppercase tracking-wider">
+              <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 text-trust-green text-[10px] font-bold uppercase tracking-wider font-mono">
                 <Sparkles class="w-3 h-3" />
                 <span>Omnichannel Showroom Experience</span>
               </div>
@@ -386,7 +348,7 @@ function handleAddCrossSell(item: Product) {
             <button
               type="button"
               @click="isShowroomModalOpen = true"
-              class="py-2.5 px-4 rounded-xl bg-white text-maxaro-blue hover:bg-neutral-100 text-xs font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
+              class="py-2.5 px-4 rounded-xl bg-white text-maxaro-blue hover:bg-neutral-100 text-xs font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5 active:scale-95"
             >
               <span>{{ t('productDetail.viewShowroomDetails') }}</span>
               <ArrowRight class="w-3.5 h-3.5" />
@@ -395,7 +357,7 @@ function handleAddCrossSell(item: Product) {
             <button
               type="button"
               @click="handleSaveToShowroomPass"
-              class="py-2.5 px-4 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all border border-white/20 cursor-pointer flex items-center gap-1.5"
+              class="py-2.5 px-4 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all border border-white/20 cursor-pointer flex items-center gap-1.5 active:scale-95"
             >
               <QrCode class="w-3.5 h-3.5 text-trust-green" />
               <span>{{ t('showroomPass.generatePassButton') }}</span>
@@ -405,16 +367,16 @@ function handleAddCrossSell(item: Product) {
 
       </div>
 
-      <!-- ================= RIGHT COLUMN: COMPACT STICKY PURCHASE PANEL (5 cols) ================= -->
+      <!-- ================= RIGHT COLUMN: COMPACT STICKY PURCHASE ENGINE (5 cols) ================= -->
       <div class="lg:col-span-5 space-y-5 lg:sticky lg:top-24">
         
         <!-- Header & Title Card -->
         <div class="p-6 bg-white rounded-3xl border border-neutral-200 shadow-xs space-y-4">
-          <!-- Top meta: SKU & In Stock -->
+          <!-- Top meta: SKU & In Stock Direct -->
           <div class="flex items-center justify-between text-xs text-neutral-500">
             <span class="font-mono text-neutral-400">SKU: {{ product.sku }}</span>
             <span class="text-trust-green font-bold flex items-center gap-1 text-[11px] bg-trust-greenBg px-2 py-0.5 rounded-full border border-trust-green/20">
-              <span class="w-1.5 h-1.5 rounded-full bg-trust-green" />
+              <span class="w-1.5 h-1.5 rounded-full bg-trust-green animate-pulse" />
               <span>{{ t('productDetail.inStockDirect') }}</span>
             </span>
           </div>
@@ -436,7 +398,7 @@ function handleAddCrossSell(item: Product) {
           </div>
 
           <!-- Pricing Card -->
-          <div class="p-4 bg-neutral-50 border border-neutral-200 rounded-2xl space-y-2.5">
+          <div class="p-4 bg-neutral-50/90 border border-neutral-200 rounded-2xl space-y-2.5">
             <div class="flex items-baseline justify-between">
               <div class="flex items-baseline gap-2">
                 <span class="text-2xl sm:text-3xl font-black font-mono text-neutral-900 tracking-tight">
@@ -454,12 +416,13 @@ function handleAddCrossSell(item: Product) {
               </span>
             </div>
 
-            <!-- in3 Installment Pill (High-Ticket Dutch sanitary boost) -->
-            <div class="p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] font-bold flex items-center justify-between">
+            <!-- in3 Installment Pill -->
+            <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] font-bold flex items-center justify-between">
               <span class="flex items-center gap-1.5">
-                <span class="px-1.5 py-0.2 rounded bg-emerald-600 text-white text-[9px] font-black">in3</span>
+                <span class="px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[9px] font-black">in3</span>
                 <span>{{ t('productDetail.in3Hint', { amount: formatEuro(in3InstallmentAmount) }) }}</span>
               </span>
+              <span class="text-[10px] text-emerald-700 font-mono">0% rente</span>
             </div>
 
             <div class="flex items-center justify-between text-xs text-neutral-500 pt-0.5">
@@ -499,17 +462,6 @@ function handleAddCrossSell(item: Product) {
                   ({{ formatEuro(variant.price) }})
                 </span>
               </NuxtLink>
-            </div>
-          </div>
-
-          <!-- Dimensional Spec Quick Summary -->
-          <div class="space-y-1.5 pt-1">
-            <label class="block text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
-              {{ t('productDetail.dimensions') }}
-            </label>
-            <div class="flex items-center gap-2 p-2.5 bg-neutral-50 rounded-xl border border-neutral-200 text-xs font-mono text-neutral-800">
-              <Ruler class="w-4 h-4 text-maxaro-blue shrink-0" />
-              <span>{{ formatDimensions(product.dimensions.lengthCm, product.dimensions.widthCm, product.dimensions.heightCm, product.dimensions.thicknessMm) }}</span>
             </div>
           </div>
 
@@ -594,65 +546,11 @@ function handleAddCrossSell(item: Product) {
 
     </div>
 
-    <!-- ================= FULL WIDTH SECTION: CROSS-SELL "VAAK SAMEN GEKOCHT" ================= -->
-    <div v-if="crossSellProducts.length > 0" class="pt-8 border-t border-neutral-200 space-y-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="p-2 rounded-2xl bg-maxaro-blue-light text-maxaro-blue">
-            <Sparkles class="w-5 h-5" />
-          </div>
-          <div>
-            <h3 class="text-lg sm:text-xl font-black text-neutral-900 tracking-tight">
-              {{ t('productDetail.crossSellTitle') }}
-            </h3>
-            <p class="text-xs text-neutral-500">{{ t('productDetail.crossSellSubtitle') }}</p>
-          </div>
-        </div>
-        <span class="text-xs text-trust-green font-bold hidden sm:inline-flex items-center gap-1 bg-trust-greenBg px-2.5 py-1 rounded-full border border-trust-green/20">
-          <Check class="w-3.5 h-3.5" /> {{ t('productDetail.inStockDirect') }}
-        </span>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div
-          v-for="item in crossSellProducts"
-          :key="item.id"
-          class="flex items-center justify-between gap-4 p-4 rounded-3xl border border-neutral-200 bg-white hover:border-neutral-300 transition-all shadow-xs"
-        >
-          <NuxtLink :to="`/product/${item.slug}`" class="flex items-center gap-3.5 min-w-0 flex-1">
-            <NuxtImg
-              :src="item.imageThumbnail"
-              :alt="item.name"
-              width="72"
-              height="72"
-              class="w-18 h-18 rounded-2xl object-cover border border-neutral-200 bg-neutral-50 shrink-0"
-            />
-            <div class="min-w-0 space-y-0.5">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block truncate">
-                {{ t(`categoriesMeta.${item.category}.title`) || item.categoryLabelNl }} &bull; {{ item.finish }}
-              </span>
-              <h4 class="text-xs sm:text-sm font-black text-neutral-900 truncate hover:text-maxaro-blue transition-colors">
-                {{ item.name }}
-              </h4>
-              <div class="text-xs font-mono font-bold text-neutral-900">
-                {{ formatEuro(item.price) }}
-                <span class="text-[10px] font-normal text-neutral-500">({{ t('productDetail.vatIncluded') }})</span>
-              </div>
-            </div>
-          </NuxtLink>
-
-          <button
-            type="button"
-            @click="handleAddCrossSell(item)"
-            class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-maxaro-blue hover:bg-maxaro-blue-hover active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
-            :title="t('productDetail.addCrossSellTitle', { name: item.name })"
-          >
-            <Plus class="w-4 h-4" />
-            <span class="hidden sm:inline">{{ t('productDetail.addCrossSell') }}</span>
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- ================= FULL WIDTH SECTION: "MAAK DE STIJL COMPLEET" (ARCHITECTURAL SUITE) ================= -->
+    <ProductSuiteBundle
+      :product="product"
+      :complementary-products="complementarySuiteProducts"
+    />
 
     <!-- Sticky Mobile Bottom Conversion Bar -->
     <div class="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-neutral-200 p-3 pb-safe shadow-lg">
