@@ -1,3 +1,21 @@
 {
-  "regions": ["fra1"]
+  "regions": ["fra1"],
+  "images": {
+    "sizes": [320, 400, 640, 768, 800, 1024, 1280],
+    "domains": ["media.maxaro.nl", "images.unsplash.com"],
+    "minimumCacheTTL": 31536000,
+    "formats": ["image/avif", "image/webp"],
+    "remotePatterns": [
+      {
+        "protocol": "https",
+        "hostname": "media.maxaro.nl",
+        "pathname": "/**"
+      },
+      {
+        "protocol": "https",
+        "hostname": "images.unsplash.com",
+        "pathname": "/**"
+      }
+    ]
+  }
 }
