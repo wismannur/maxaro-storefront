@@ -132,12 +132,136 @@ const in3InstallmentAmount = computed(() => {
   return Math.round((product.value.price / 3) * 100) / 100;
 });
 
+const config = useRuntimeConfig();
+const siteUrl = computed(() => config.public.siteUrl || 'https://maxaro-storefront.vercel.app');
+const productUrl = computed(() => `${siteUrl.value}/product/${product.value?.slug || ''}`);
+const categoryUrl = computed(() => `${siteUrl.value}/categorie/${product.value?.category || ''}`);
+
+// Schema.org Structured Data (Product & BreadcrumbList Rich Snippets)
+const productSchema = computed(() => {
+  if (!product.value) return null;
+  const p = product.value;
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${productUrl.value}/#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: siteUrl.value,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: p.categoryLabelNl || 'Sanitair',
+            item: categoryUrl.value,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: p.name,
+            item: productUrl.value,
+          },
+        ],
+      },
+      {
+        '@type': 'Product',
+        '@id': `${productUrl.value}/#product`,
+        name: p.name,
+        image: p.imageGallery && p.imageGallery.length > 0 ? p.imageGallery : [p.imageThumbnail],
+        description: p.specsSummary,
+        sku: p.sku,
+        mpn: p.sku,
+        brand: {
+          '@type': 'Brand',
+          name: 'Maxaro',
+        },
+        offers: {
+          '@type': 'Offer',
+          url: productUrl.value,
+          priceCurrency: 'EUR',
+          price: p.price,
+          priceValidUntil: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          itemCondition: 'https://schema.org/NewCondition',
+          availability: p.inStock ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
+          seller: {
+            '@type': 'Organization',
+            name: 'Maxaro',
+          },
+          shippingDetails: {
+            '@type': 'OfferShippingDetails',
+            shippingRate: {
+              '@type': 'MonetaryAmount',
+              value: p.price >= 100 ? 0 : 6.95,
+              currency: 'EUR',
+            },
+            deliveryTime: {
+              '@type': 'ShippingDeliveryTime',
+              handlingTime: {
+                '@type': 'QuantitativeValue',
+                minValue: 0,
+                maxValue: 1,
+                unitCode: 'd',
+              },
+              transitTime: {
+                '@type': 'QuantitativeValue',
+                minValue: 1,
+                maxValue: 3,
+                unitCode: 'd',
+              },
+            },
+          },
+          hasMerchantReturnPolicy: {
+            '@type': 'MerchantReturnPolicy',
+            applicableCountry: 'NL',
+            returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+            merchantReturnDays: 30,
+            returnMethod: 'https://schema.org/ReturnByMail',
+            returnFees: 'https://schema.org/FreeReturn',
+          },
+        },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: p.rating,
+          reviewCount: p.reviewsCount,
+          bestRating: 5,
+          worstRating: 1,
+        },
+      },
+    ],
+  };
+});
+
+useSeoMeta({
+  title: computed(() => (product.value ? `${product.value.name} kopen? | Maxaro` : 'Product Detail | Maxaro')),
+  description: computed(
+    () =>
+      product.value?.specsSummary
+        ? `${product.value.specsSummary} ✓ Direct uit voorraad leverbaar ✓ 10 jaar garantie ✓ Bezoek de 5.000 m² showroom in Roosendaal.`
+        : 'Bekijk dit luxe sanitair product direct bij Maxaro.'
+  ),
+  ogTitle: computed(() => (product.value ? `${product.value.name} | Maxaro` : 'Maxaro Sanitair')),
+  ogDescription: computed(
+    () =>
+      product.value?.specsSummary || 'Bekijk dit luxe sanitair product direct bij Maxaro.'
+  ),
+  ogImage: computed(() => product.value?.imageThumbnail || ''),
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: computed(() => (product.value ? `${product.value.name} | Maxaro` : 'Maxaro')),
+  twitterDescription: computed(() => product.value?.specsSummary || ''),
+  twitterImage: computed(() => product.value?.imageThumbnail || ''),
+});
+
 useHead({
-  title: computed(() => (product.value ? `${product.value.name} — Maxaro` : 'Product Detail — Maxaro')),
-  meta: [
+  script: [
     {
-      name: 'description',
-      content: computed(() => product.value?.specsSummary || 'Bekijk dit product bij Maxaro.'),
+      type: 'application/ld+json',
+      innerHTML: computed(() => (productSchema.value ? JSON.stringify(productSchema.value) : '')),
     },
   ],
 });

@@ -26,7 +26,52 @@ import {
 const catalogStore = useCatalogStore();
 const cartStore = useCartStore();
 const { t } = useLocale();
+const config = useRuntimeConfig();
 const isShowroomModalOpen = ref(false);
+
+const siteUrl = computed(() => config.public.siteUrl || 'https://maxaro-storefront.vercel.app');
+
+// Homepage SearchAction Structured Data (Schema.org JSON-LD)
+const websiteSchema = computed(() => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Maxaro',
+  url: siteUrl.value,
+  description: 'Specialist in hoogwaardig sanitair en tegels. 5.000 m² showroom in Roosendaal.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${siteUrl.value}/?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
+}));
+
+useSeoMeta({
+  title: 'Maxaro — Maximaal Geslaagd in Sanitair & Tegels',
+  description:
+    'Ontdek het complete assortiment hoogwaardig sanitair en tegels bij Maxaro. Vrijstaande baden, inloopdouches, badkamermeubels en tegels direct uit voorraad leverbaar. Bezoek onze 5.000 m² showroom in Roosendaal.',
+  ogTitle: 'Maxaro — Luxe Sanitair & Tegels | 5.000 m² Showroom',
+  ogDescription:
+    'Ontdek het complete assortiment hoogwaardig sanitair en tegels bij Maxaro. Vrijstaande baden, inloopdouches, badmeubels en design tegels.',
+  ogImage: 'https://media.maxaro.nl/product/Width800/8498/tesino-vrijstaand-bad-180x85cm-solid-surface-mat-wit-vsb11-mn.webp',
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Maxaro — Maximaal Geslaagd in Sanitair & Tegels',
+  twitterDescription:
+    'Vrijstaande baden, inloopdouches, badkamermeubels en tegels direct uit voorraad leverbaar.',
+  twitterImage: 'https://media.maxaro.nl/product/Width800/8498/tesino-vrijstaand-bad-180x85cm-solid-surface-mat-wit-vsb11-mn.webp',
+});
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() => JSON.stringify(websiteSchema.value)),
+    },
+  ],
+});
 
 // Fetch complete catalog for homepage showcase
 const { data: allCatalog } = await useAsyncData('home-catalog', () =>

@@ -56,10 +56,88 @@ watch(
 
 const { filteredProducts, isLoading } = useCatalog();
 
-// SEO Head
+const config = useRuntimeConfig();
+const siteUrl = computed(() => config.public.siteUrl || 'https://maxaro-storefront.vercel.app');
+const categoryUrl = computed(() => `${siteUrl.value}/categorie/${slug.value}`);
+const heroCategoryImg = computed(
+  () =>
+    serverProducts.value?.[0]?.imageThumbnail ||
+    'https://media.maxaro.nl/product/Width800/8498/tesino-vrijstaand-bad-180x85cm-solid-surface-mat-wit-vsb11-mn.webp'
+);
+
+// Structured Data (Schema.org JSON-LD for Breadcrumbs & Collection)
+const categorySchema = computed(() => ({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${categoryUrl.value}/#breadcrumb`,
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: siteUrl.value,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: currentMeta.value.title,
+          item: categoryUrl.value,
+        },
+      ],
+    },
+    {
+      '@type': 'CollectionPage',
+      '@id': `${categoryUrl.value}/#webpage`,
+      url: categoryUrl.value,
+      name: `${currentMeta.value.title} kopen? | Maxaro`,
+      description: currentMeta.value.description,
+      breadcrumb: { '@id': `${categoryUrl.value}/#breadcrumb` },
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: serverProducts.value?.length || 0,
+        itemListElement: (serverProducts.value || []).slice(0, 12).map((prod, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          url: `${siteUrl.value}/product/${prod.slug}`,
+          name: prod.name,
+          image: prod.imageThumbnail,
+        })),
+      },
+    },
+  ],
+}));
+
+// SEO Meta Tags
+useSeoMeta({
+  title: computed(() => `${currentMeta.value.title} kopen? | Maxaro`),
+  description: computed(
+    () =>
+      currentMeta.value.description ||
+      `Bekijk het complete assortiment ${currentMeta.value.title.toLowerCase()} bij Maxaro. Direct uit voorraad leverbaar met 10 jaar garantie.`
+  ),
+  ogTitle: computed(() => `${currentMeta.value.title} kopen? | Maxaro Sanitair`),
+  ogDescription: computed(
+    () =>
+      currentMeta.value.description ||
+      `Bekijk het complete assortiment ${currentMeta.value.title.toLowerCase()} bij Maxaro.`
+  ),
+  ogImage: heroCategoryImg,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  twitterTitle: computed(() => `${currentMeta.value.title} kopen? | Maxaro`),
+  twitterDescription: computed(() => currentMeta.value.description),
+  twitterImage: heroCategoryImg,
+});
+
 useHead({
-  title: computed(() => `${currentMeta.value.title} — Maxaro Showroom`),
-  meta: [{ name: 'description', content: computed(() => currentMeta.value.description) }],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: computed(() => JSON.stringify(categorySchema.value)),
+    },
+  ],
 });
 
 async function handleAddToCart(product: Product) {

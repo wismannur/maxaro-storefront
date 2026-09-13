@@ -49,6 +49,27 @@ export default defineNuxtConfig({
           'Pragma': 'no-cache',
         },
       },
+
+      // SEO Crawling Endpoints
+      '/robots.txt': {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Cache-Control': 'max-age=86400, s-maxage=86400',
+        },
+      },
+      '/sitemap.xml': {
+        headers: {
+          'Content-Type': 'application/xml; charset=utf-8',
+          'Cache-Control': 'max-age=3600, s-maxage=86400',
+        },
+      },
+    },
+  },
+
+  runtimeConfig: {
+    public: {
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://maxaro-storefront.vercel.app',
+      siteName: 'Maxaro',
     },
   },
 
@@ -92,13 +113,40 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'nl' },
-      title: 'Maxaro — Sub-Second Storefront Prototype',
+      title: 'Maxaro — Maximaal Geslaagd in Sanitair & Tegels',
       meta: [
-        { name: 'description', content: 'Modern sub-second Nuxt 4 mobile storefront prototype for Maxaro B.V.' },
+        {
+          name: 'description',
+          content:
+            'Ontdek het complete assortiment hoogwaardig sanitair en tegels bij Maxaro. Vrijstaande baden, inloopdouches, badkamermeubels en tegels. Bezoek onze 5.000 m² showroom in Roosendaal.',
+        },
+        { name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
         { name: 'theme-color', content: '#0F2A4A' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
+        { name: 'format-detection', content: 'telephone=no' },
+        // Open Graph Base
+        { property: 'og:site_name', content: 'Maxaro' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:locale', content: 'nl_NL' },
+        { property: 'og:locale:alternate', content: 'de_DE' },
+        { property: 'og:locale:alternate', content: 'fr_FR' },
+        { property: 'og:locale:alternate', content: 'en_US' },
+        // Twitter Base
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:site', content: '@MaxaroNL' },
       ],
       link: [
+        // Favicons & Web Manifest (Scraped from Maxaro.nl)
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'shortcut icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'apple-touch-icon', sizes: '152x152', href: '/icon_x152.png' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/icon_x192.png' },
+        { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/icon_x512.png' },
+        { rel: 'manifest', href: '/manifest.json' },
+
         { rel: 'preconnect', href: 'https://media.maxaro.nl' },
         { rel: 'preconnect', href: 'https://images.unsplash.com' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
