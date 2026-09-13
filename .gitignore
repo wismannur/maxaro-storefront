@@ -26,3 +26,6 @@ Thumbs.db
 
 # Internal docs (per original project setting)
 internal-docs
+
+# Vercel
+.vercel
