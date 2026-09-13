@@ -201,24 +201,32 @@ onUnmounted(() => {
   >
     <div
       v-if="isCheckoutModalOpen && lastHandshake"
-      class="fixed inset-0 z-[150] bg-black/65 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto print:p-0 print:bg-white print:static"
+      class="fixed inset-0 z-[150] bg-neutral-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto print:p-0 print:bg-white print:static"
       role="dialog"
       aria-modal="true"
       @click.self="checkoutStage !== 'authorizing' && closeModal()"
     >
-      <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden space-y-0 my-4 sm:my-6 print:shadow-none print:border-none print:rounded-none">
+      <div class="w-full max-w-xl sm:max-w-2xl bg-white rounded-3xl shadow-2xl border border-neutral-200/90 overflow-hidden space-y-0 my-4 sm:my-6 print:shadow-none print:border-none print:rounded-none transition-all">
         
         <!-- ================= STAGE 1: SELECTION & REVIEW ================= -->
         <template v-if="checkoutStage === 'review'">
           <!-- Header -->
-          <div class="bg-gradient-to-r from-maxaro-blue via-[#12365e] to-maxaro-blue-hover text-white p-5 sm:p-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <div class="p-2 rounded-xl bg-white/10 text-white backdrop-blur-sm">
-                  <CheckCircle2 class="w-5 h-5 text-trust-green" />
+          <div class="relative bg-gradient-to-r from-neutral-950 via-maxaro-blue to-neutral-900 text-white p-6 sm:p-7 overflow-hidden">
+            <!-- Ambient Glow -->
+            <div class="absolute -top-20 -right-20 w-48 h-48 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
+            <div class="absolute -bottom-20 -left-20 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div class="relative z-10 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="p-2.5 rounded-2xl bg-white/10 text-white backdrop-blur-md border border-white/15 shadow-xs">
+                  <CheckCircle2 class="w-6 h-6 text-trust-green" />
                 </div>
                 <div>
-                  <h3 class="font-black text-base sm:text-lg text-white leading-tight">
+                  <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 text-[10px] font-bold text-trust-green uppercase tracking-wider font-mono mb-1">
+                    <Sparkles class="w-3 h-3" />
+                    <span>Nitro Edge Protocol</span>
+                  </div>
+                  <h3 class="font-black text-lg sm:text-xl text-white leading-tight">
                     {{ t('checkoutModal.handshakeTitle') }}
                   </h3>
                   <p class="text-xs text-neutral-300">
@@ -229,7 +237,7 @@ onUnmounted(() => {
               <button
                 type="button"
                 @click="closeModal"
-                class="text-white/70 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                class="text-neutral-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors cursor-pointer border border-white/10"
                 :aria-label="t('checkoutModal.cancel')"
               >
                 <X class="w-5 h-5" />
@@ -237,24 +245,24 @@ onUnmounted(() => {
             </div>
 
             <!-- Benchmark Telemetry Badges -->
-            <div class="grid grid-cols-2 gap-3 mt-4">
-              <div class="bg-white/10 rounded-xl p-2.5 border border-white/15 backdrop-blur-sm">
-                <div class="flex items-center gap-1 text-trust-green text-[11px] font-bold">
+            <div class="relative z-10 grid grid-cols-2 gap-3 mt-5">
+              <div class="bg-white/10 rounded-2xl p-3 border border-white/15 backdrop-blur-md">
+                <div class="flex items-center gap-1.5 text-trust-green text-[11px] font-bold">
                   <Zap class="w-3.5 h-3.5 fill-trust-green" />
                   <span>{{ t('checkoutModal.edgeVerification') }}</span>
                 </div>
-                <div class="text-base font-mono font-black mt-0.5 text-white">
+                <div class="text-lg font-mono font-black mt-0.5 text-white">
                   {{ lastHandshake.preparationTimeMs }} ms
                 </div>
                 <div class="text-[10px] text-neutral-300">{{ t('checkoutModal.edgeLatencyNote') }}</div>
               </div>
 
-              <div class="bg-white/10 rounded-xl p-2.5 border border-white/15 backdrop-blur-sm">
-                <div class="flex items-center gap-1 text-maxaro-accent text-[11px] font-bold">
+              <div class="bg-white/10 rounded-2xl p-3 border border-white/15 backdrop-blur-md">
+                <div class="flex items-center gap-1.5 text-amber-300 text-[11px] font-bold">
                   <FileCode2 class="w-3.5 h-3.5" />
                   <span>{{ t('checkoutModal.payloadDto') }}</span>
                 </div>
-                <div class="text-base font-mono font-black mt-0.5 text-white">
+                <div class="text-lg font-mono font-black mt-0.5 text-white">
                   {{ (lastHandshake.payloadSizeBytes / 1024).toFixed(2) }} KB
                 </div>
                 <div class="text-[10px] text-neutral-300">{{ t('checkoutModal.payloadDtoNote') }}</div>
@@ -556,10 +564,11 @@ onUnmounted(() => {
 
         <!-- ================= STAGE 2: AUTHORIZING HANDSHAKE ANIMATION ================= -->
         <template v-else-if="checkoutStage === 'authorizing'">
-          <div class="p-8 text-center space-y-6">
-            <div class="relative w-20 h-20 mx-auto flex items-center justify-center">
+          <div class="relative p-8 sm:p-12 text-center space-y-6 overflow-hidden bg-gradient-to-b from-white to-neutral-50/50">
+            <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
               <div class="absolute inset-0 rounded-full border-4 border-neutral-100 border-t-maxaro-blue animate-spin" />
-              <div class="w-12 h-12 rounded-2xl bg-maxaro-blue/10 flex items-center justify-center text-maxaro-blue font-black text-sm">
+              <div class="absolute -inset-2 rounded-full bg-maxaro-blue/5 blur-xl animate-pulse" />
+              <div class="w-14 h-14 rounded-2xl bg-maxaro-blue/10 border border-maxaro-blue/20 flex items-center justify-center text-maxaro-blue font-black text-sm shadow-xs">
                 <template v-if="selectedPaymentMethod === 'ideal'">
                   {{ selectedBank?.shortName || 'iDEAL' }}
                 </template>
@@ -570,13 +579,13 @@ onUnmounted(() => {
                   in3
                 </template>
                 <template v-else>
-                  <CreditCard class="w-6 h-6 text-maxaro-blue" />
+                  <CreditCard class="w-7 h-7 text-maxaro-blue" />
                 </template>
               </div>
             </div>
 
             <div class="space-y-1.5">
-              <h3 class="font-black text-lg text-neutral-900">
+              <h3 class="font-black text-xl text-neutral-900">
                 {{ t('checkoutModal.authorizingBank', { bank: selectedPaymentMethod === 'ideal' ? (selectedBank?.name || 'iDEAL') : 'Bank' }) }}
               </h3>
               <p class="text-xs text-neutral-500">
@@ -585,23 +594,23 @@ onUnmounted(() => {
             </div>
 
             <!-- Progression checklist -->
-            <div class="max-w-md mx-auto bg-neutral-50 p-4 rounded-2xl border border-neutral-200 text-left space-y-2.5 text-xs">
-              <div class="flex items-center gap-2.5">
+            <div class="max-w-md mx-auto bg-white p-5 rounded-3xl border border-neutral-200/90 shadow-xs text-left space-y-3 text-xs">
+              <div class="flex items-center gap-3">
                 <CheckCircle2 class="w-4 h-4 text-trust-green shrink-0" />
-                <span class="text-neutral-800 font-medium">{{ t('checkoutModal.stepHandshake1') }}</span>
+                <span class="text-neutral-800 font-semibold">{{ t('checkoutModal.stepHandshake1') }}</span>
               </div>
-              <div class="flex items-center gap-2.5">
+              <div class="flex items-center gap-3">
                 <CheckCircle2 v-if="authStep >= 2" class="w-4 h-4 text-trust-green shrink-0 animate-scale-in" />
                 <RefreshCw v-else class="w-4 h-4 text-neutral-400 shrink-0 animate-spin" />
-                <span :class="authStep >= 2 ? 'text-neutral-800 font-medium' : 'text-neutral-400'">
+                <span :class="authStep >= 2 ? 'text-neutral-800 font-semibold' : 'text-neutral-400'">
                   {{ t('checkoutModal.stepHandshake2') }}
                 </span>
               </div>
-              <div class="flex items-center gap-2.5">
+              <div class="flex items-center gap-3">
                 <CheckCircle2 v-if="authStep >= 3" class="w-4 h-4 text-trust-green shrink-0 animate-scale-in" />
                 <RefreshCw v-else-if="authStep >= 2" class="w-4 h-4 text-neutral-400 shrink-0 animate-spin" />
                 <div v-else class="w-4 h-4 rounded-full border border-neutral-300 shrink-0" />
-                <span :class="authStep >= 3 ? 'text-neutral-800 font-medium' : 'text-neutral-400'">
+                <span :class="authStep >= 3 ? 'text-neutral-800 font-semibold' : 'text-neutral-400'">
                   {{ t('checkoutModal.stepHandshake3') }}
                 </span>
               </div>
@@ -612,14 +621,21 @@ onUnmounted(() => {
         <!-- ================= STAGE 3: CONFIRMED ORDER ================= -->
         <template v-else-if="checkoutStage === 'confirmed'">
           <!-- Success Header -->
-          <div class="bg-gradient-to-r from-trust-green to-emerald-700 text-white p-6 relative print:bg-none print:text-neutral-900 print:p-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="p-2.5 rounded-2xl bg-white/20 text-white backdrop-blur-sm print:bg-neutral-100 print:text-neutral-900">
+          <div class="relative bg-gradient-to-r from-emerald-800 via-trust-green to-emerald-700 text-white p-6 sm:p-7 relative print:bg-none print:text-neutral-900 print:p-4 overflow-hidden">
+            <!-- Ambient Glow -->
+            <div class="absolute -top-16 -right-16 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+
+            <div class="relative z-10 flex items-center justify-between">
+              <div class="flex items-center gap-3.5">
+                <div class="p-2.5 rounded-2xl bg-white/20 text-white backdrop-blur-md border border-white/20 shadow-xs print:bg-neutral-100 print:text-neutral-900">
                   <CheckCircle2 class="w-7 h-7 text-white print:text-trust-green" />
                 </div>
                 <div>
-                  <h3 class="font-black text-lg text-white print:text-neutral-900 leading-tight">
+                  <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-bold text-white uppercase tracking-wider font-mono mb-1">
+                    <Sparkles class="w-3 h-3" />
+                    <span>Bestelling Bevestigd</span>
+                  </div>
+                  <h3 class="font-black text-xl text-white print:text-neutral-900 leading-tight">
                     {{ t('checkoutModal.confirmedTitle') }}
                   </h3>
                   <p class="text-xs text-emerald-100 print:text-neutral-600">
@@ -630,7 +646,7 @@ onUnmounted(() => {
               <button
                 type="button"
                 @click="closeModal"
-                class="text-white/70 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer print:hidden"
+                class="text-white/70 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors cursor-pointer print:hidden border border-white/10"
                 :aria-label="t('checkoutModal.cancel')"
               >
                 <X class="w-5 h-5" />
