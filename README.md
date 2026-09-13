@@ -245,7 +245,7 @@ The repository is configured for edge execution on **Vercel Pro** or **Cloudflar
 ```json
 {
   "framework": "nuxtjs",
-  "regions": ["arn1", "fra1", "cdg1", "lhr1"]
+  "regions": ["fra1"]
 }
 ```
 
