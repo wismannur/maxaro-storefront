@@ -45,24 +45,27 @@ onUnmounted(() => {
   >
     <div
       v-if="benchmarkStore.isScorecardModalOpen"
-      class="fixed inset-0 z-[170] bg-black/65 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      class="fixed inset-0 z-[170] bg-neutral-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="scorecard-title"
       @click.self="closeModal"
     >
-      <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden my-4 sm:my-6 space-y-0">
+      <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-neutral-200/90 overflow-hidden my-4 sm:my-6 space-y-0 text-left transition-all">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-maxaro-blue via-[#12365e] to-maxaro-blue-hover text-white p-5 sm:p-6">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="p-2.5 rounded-2xl bg-white/10 text-white backdrop-blur-sm">
+        <div class="relative bg-gradient-to-r from-neutral-950 via-maxaro-blue to-neutral-900 text-white p-6 sm:p-7 overflow-hidden">
+          <!-- Ambient Glow -->
+          <div class="absolute -top-20 -right-20 w-48 h-48 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
+
+          <div class="relative z-10 flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+              <div class="p-2.5 rounded-2xl bg-white/10 text-white backdrop-blur-md border border-white/15 shadow-xs">
                 <Gauge class="w-6 h-6 text-trust-green" />
               </div>
               <div>
-                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 text-[10px] font-bold text-trust-green uppercase tracking-wider mb-1">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 text-[10px] font-bold text-trust-green uppercase tracking-wider font-mono mb-1">
                   <Sparkles class="w-3 h-3 text-trust-green" />
-                  <span>Empirical Technical Benchmark</span>
+                  <span>Technical Benchmark &amp; ROI</span>
                 </div>
                 <h3 id="scorecard-title" class="font-black text-lg sm:text-xl text-white leading-tight">
                   Legacy Monolith vs Nuxt 4 Edge Storefront
@@ -76,7 +79,7 @@ onUnmounted(() => {
             <button
               type="button"
               @click="closeModal"
-              class="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              class="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer border border-white/10"
               :aria-label="t('galleryModal.closeAria')"
             >
               <X class="w-5 h-5" />
