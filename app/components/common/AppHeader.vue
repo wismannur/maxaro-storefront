@@ -112,6 +112,12 @@ function handleSearchSubmit() {
     mobileSearchInputRef.value.blur();
   }
 
+  const q = searchQuery.value.trim();
+  if (q) {
+    const umami = useUmami();
+    umami.track('search', { query: q });
+  }
+
   if (route.path !== '/') {
     catalogStore.setCategory(null);
     router.push({ path: '/', hash: '#catalog-collection' }).then(() => {
@@ -125,6 +131,14 @@ function handleSearchSubmit() {
 function handleSearchSelect(product: Product) {
   isSearchFocused.value = false;
   isMobileSearchOpen.value = false;
+
+  const umami = useUmami();
+  umami.track('search_select', {
+    product_id: product.id,
+    product_name: product.name,
+    query: searchQuery.value,
+  });
+
   router.push(`/product/${product.slug}`);
 }
 
@@ -170,6 +184,9 @@ onUnmounted(() => {
 });
 
 function handleShowroomClick(e: MouseEvent) {
+  const umami = useUmami();
+  umami.track('click_showroom_header_nav');
+
   if (route.path === '/') {
     e.preventDefault();
     const el = document.getElementById('showroom-experience');

@@ -50,6 +50,8 @@ watch(
   slug,
   (newSlug) => {
     catalogStore.setCategory(newSlug);
+    const umami = useUmami();
+    umami.track('view_category', { category: newSlug });
   },
   { immediate: true }
 );

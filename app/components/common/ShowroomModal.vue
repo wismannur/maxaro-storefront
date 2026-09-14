@@ -13,15 +13,36 @@ import {
 } from 'lucide-vue-next';
 import { useLocale } from '~~/app/composables/useLocale';
 
-defineProps<{
-  isOpen: boolean;
-}>();
-
 const emit = defineEmits<{
   (e: 'close'): void;
 }>();
 
+const props = defineProps<{
+  isOpen: boolean;
+}>();
+
 const { t } = useLocale();
+
+watch(
+  () => props.isOpen,
+  (open) => {
+    if (open) {
+      const umami = useUmami();
+      umami.track('view_showroom_modal');
+    }
+  }
+);
+
+function handleDirectionsClick() {
+  const umami = useUmami();
+  umami.track('click_showroom_directions', { showroom: 'roosendaal' });
+}
+
+function handleAppointmentClick() {
+  const umami = useUmami();
+  umami.track('click_showroom_appointment', { showroom: 'roosendaal' });
+  emit('close');
+}
 
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') {
@@ -140,6 +161,7 @@ const otherLocations = [
                 href="https://maps.google.com/?q=Maxaro+Roosendaal+Rucphensebaan+17"
                 target="_blank"
                 rel="noopener noreferrer"
+                @click="handleDirectionsClick"
                 class="inline-flex items-center gap-1.5 px-4 py-2 bg-maxaro-blue hover:bg-maxaro-blue-hover text-white rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs self-start"
               >
                 <span>{{ t('showroomModal.routeButton') }}</span>
@@ -213,7 +235,7 @@ const otherLocations = [
             </div>
             <button
               type="button"
-              @click="emit('close')"
+              @click="handleAppointmentClick"
               class="px-4 py-2.5 bg-trust-green hover:bg-trust-green-hover text-white rounded-xl text-xs font-bold transition-colors shrink-0 shadow-xs cursor-pointer active:scale-95"
             >
               {{ t('showroomModal.bookAppointment') }}

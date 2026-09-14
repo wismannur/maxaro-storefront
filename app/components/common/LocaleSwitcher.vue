@@ -5,6 +5,7 @@ import { useLocale } from '~~/app/composables/useLocale';
 import type { MarketOption } from '~~/app/locales';
 
 const { currentMarketInfo, supportedMarkets, setMarket, t } = useLocale();
+const { trackMarketChange } = useUmami();
 
 const isOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
@@ -15,6 +16,11 @@ function toggle() {
 
 function selectMarket(market: MarketOption) {
   setMarket(market);
+  trackMarketChange({
+    code: market.code,
+    language: market.languageName,
+    country: market.countryName,
+  });
   isOpen.value = false;
 }
 
