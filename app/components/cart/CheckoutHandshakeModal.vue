@@ -146,6 +146,15 @@ function startPayment() {
   checkoutStage.value = 'authorizing';
   authStep.value = 1;
 
+  const umami = useUmami();
+  umami.track('submit_payment', {
+    payment_method: selectedPaymentMethod.value,
+    bank: selectedBankId.value,
+    delivery_method: selectedDeliveryMethod.value,
+    total: paidAmount.value,
+    currency: 'EUR',
+  });
+
   // Realistic bank network progression (1.2s total)
   setTimeout(() => {
     authStep.value = 2;
@@ -157,6 +166,13 @@ function startPayment() {
 
   setTimeout(() => {
     checkoutStage.value = 'confirmed';
+    umami.track('purchase', {
+      order_id: confirmedOrderNumber.value,
+      total: paidAmount.value,
+      currency: 'EUR',
+      payment_method: selectedPaymentMethod.value,
+      delivery_method: selectedDeliveryMethod.value,
+    });
     cartStore.clearCart();
   }, 1300);
 }

@@ -235,6 +235,20 @@ pnpm build
 pnpm preview
 ```
 
+### Umami Analytics Setup
+Umami Analytics is configured via runtime config. Set your environment variables in `.env` or Vercel:
+```env
+# Umami Analytics (Cloud or Self-Hosted)
+NUXT_PUBLIC_UMAMI_ID="your-umami-website-id"
+NUXT_PUBLIC_UMAMI_HOST="https://cloud.umami.is" # or your self-hosted URL
+NUXT_PUBLIC_UMAMI_DOMAINS="maxaro-storefront.vercel.app" # optional
+```
+* **Script Injection:** Automatically injected with `defer` during SSR and hydrated cleanly.
+* **Auto Pageview Tracking:** Handled natively via HTML5 history interception.
+* **Storefront E-commerce Tracking:** Built-in tracking for `add_to_cart`, `remove_from_cart`, `initiate_checkout`, `generate_showroom_pass`, and market changes.
+* **Dev Mode Logging:** In local development, tracked events are logged to the browser console for zero-overhead validation.
+
+
 ---
 
 ## ☁️ Deployment & Edge Routing

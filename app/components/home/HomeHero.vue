@@ -23,8 +23,24 @@ const emit = defineEmits<{
   (e: 'open-showroom-modal'): void;
 }>();
 
+function onExploreCatalog() {
+  const umami = useUmami();
+  umami.track('click_hero_explore');
+  emit('explore-catalog');
+}
+
+function onOpenShowroomModal() {
+  const umami = useUmami();
+  umami.track('click_hero_showroom');
+  emit('open-showroom-modal');
+}
+
 function toggleHotspot(spot: 'bath' | 'tap') {
   activeHotspot.value = activeHotspot.value === spot ? null : spot;
+  if (activeHotspot.value) {
+    const umami = useUmami();
+    umami.track('click_hero_hotspot', { hotspot: spot });
+  }
 }
 
 function closeHotspot() {
@@ -76,7 +92,7 @@ function closeHotspot() {
           <div class="flex flex-wrap items-center gap-3.5 pt-2">
             <button
               type="button"
-              @click="emit('explore-catalog')"
+              @click="onExploreCatalog"
               class="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-maxaro-blue hover:bg-maxaro-blue-hover text-white text-sm font-bold rounded-2xl shadow-card-hover transition-all duration-200 active:scale-95 cursor-pointer"
             >
               <span>{{ t('homeHero.exploreCatalog') }}</span>
@@ -85,7 +101,7 @@ function closeHotspot() {
 
             <button
               type="button"
-              @click="emit('open-showroom-modal')"
+              @click="onOpenShowroomModal"
               class="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-200/90 text-sm font-bold rounded-2xl shadow-xs transition-all duration-200 active:scale-95 cursor-pointer"
             >
               <Building2 class="w-4 h-4 text-maxaro-accent" />

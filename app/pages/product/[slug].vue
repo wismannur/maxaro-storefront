@@ -103,6 +103,15 @@ function openGalleryModal(index?: number) {
     galleryModalIndex.value = curIdx >= 0 ? curIdx : 0;
   }
   isGalleryModalOpen.value = true;
+
+  if (product.value) {
+    const umami = useUmami();
+    umami.track('view_gallery', {
+      product_id: product.value.id,
+      product_name: product.value.name,
+      image_index: galleryModalIndex.value,
+    });
+  }
 }
 
 function onGalleryImageChange(newIdx: number) {
@@ -117,6 +126,16 @@ watch(
   (p) => {
     if (p) {
       selectedImage.value = p.imageGallery?.[0] || p.imageThumbnail;
+      const umami = useUmami();
+      umami.track('view_product', {
+        id: p.id,
+        sku: p.sku,
+        name: p.name,
+        category: p.category,
+        price: p.price,
+        finish: p.finish,
+        rating: p.rating,
+      });
     }
   },
   { immediate: true }
