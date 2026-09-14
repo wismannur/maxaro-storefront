@@ -70,6 +70,13 @@ export default defineNuxtConfig({
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://maxaro-storefront.vercel.app',
       siteName: 'Maxaro',
+      umami: {
+        id: process.env.NUXT_PUBLIC_UMAMI_ID || process.env.NUXT_PUBLIC_UMAMI_WEBSITE_ID || '',
+        hostUrl: process.env.NUXT_PUBLIC_UMAMI_HOST || process.env.NUXT_PUBLIC_UMAMI_HOST_URL || 'https://cloud.umami.is',
+        autoTrack: process.env.NUXT_PUBLIC_UMAMI_AUTO_TRACK !== 'false',
+        domains: process.env.NUXT_PUBLIC_UMAMI_DOMAINS || '',
+        tag: process.env.NUXT_PUBLIC_UMAMI_TAG || '',
+      },
     },
   },
 
