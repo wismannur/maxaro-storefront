@@ -28,6 +28,7 @@ const cartStore = useCartStore();
 const { isShowroomPassModalOpen, activeShowroomPass } = storeToRefs(cartStore);
 const { formatEuro } = useCurrency();
 const { t, currentLocale } = useLocale();
+const { trackShowroomPassAction } = useUmami();
 
 const qrCodeDataUrl = ref<string>('');
 const isCopied = ref(false);
@@ -76,6 +77,7 @@ function handleShowroomChange(showroomLocationId: string) {
 
 function handleCopyCode() {
   if (!activeShowroomPass.value) return;
+  trackShowroomPassAction('copy', activeShowroomPass.value.passId);
   if (typeof navigator !== 'undefined' && navigator.clipboard) {
     navigator.clipboard.writeText(activeShowroomPass.value.passId);
     isCopied.value = true;
@@ -86,6 +88,8 @@ function handleCopyCode() {
 }
 
 function handlePrint() {
+  if (!activeShowroomPass.value) return;
+  trackShowroomPassAction('print', activeShowroomPass.value.passId);
   if (typeof window !== 'undefined') {
     window.print();
   }

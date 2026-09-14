@@ -10,6 +10,7 @@ import {
   SHOWROOM_PASS_VALIDITY_DAYS,
 } from '~~/shared/constants';
 import type { CheckoutHandshakeResponse } from '~~/server/api/cart/checkout.post';
+import { useUmami } from '~~/app/composables/useUmami';
 
 // Re-export for backward compatibility
 export const SHOWROOM_LOCATIONS: ShowroomLocation[] = MAXARO_SHOWROOMS;
@@ -123,6 +124,17 @@ export const useCartStore = defineStore('cart', () => {
 
     // 3. Decoupled background sync
     syncWithBackend();
+
+    // 4. Analytics tracking
+    const umami = useUmami();
+    umami.trackAddToCart({
+      id: product.id,
+      name: product.name,
+      price: tileMetadata ? tileMetadata.pricePerPackage : product.price,
+      quantity,
+      category: product.category,
+      finish: product.finish,
+    });
   }
 
   function updateQuantity(productId: string, delta: number) {
@@ -149,6 +161,9 @@ export const useCartStore = defineStore('cart', () => {
   function removeItem(productId: string) {
     items.value = items.value.filter((i) => i.product.id !== productId);
     syncWithBackend();
+
+    const umami = useUmami();
+    umami.trackRemoveFromCart(productId);
   }
 
   function clearCart() {
@@ -198,6 +213,13 @@ export const useCartStore = defineStore('cart', () => {
 
       lastHandshake.value = response;
       isCheckoutModalOpen.value = true;
+
+      const umami = useUmami();
+      umami.trackCheckoutStart({
+        total: total.value,
+        itemCount: itemCount.value,
+      });
+
       return response;
     } catch (err) {
       console.error('Checkout handshake error:', err);
@@ -241,6 +263,15 @@ export const useCartStore = defineStore('cart', () => {
     activeShowroomPass.value = pass;
     isDrawerOpen.value = false;
     isShowroomPassModalOpen.value = true;
+
+    const umami = useUmami();
+    umami.trackShowroomPassGenerated({
+      passId: pass.passId,
+      showroom: location.name,
+      itemCount: pass.items.length,
+      total: pass.totals.total,
+    });
+
     return pass;
   }
 

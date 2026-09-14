@@ -94,6 +94,16 @@ function handleAddToCart() {
   cartStore.addItem(props.product, packageCount.value, metadata);
   emit('added-to-cart', metadata);
 
+  const umami = useUmami();
+  umami.track('calculate_tile_waste', {
+    product_id: props.product.id,
+    product_name: props.product.name,
+    net_m2: netRoomM2.value,
+    waste_percentage: wastePercentage.value,
+    package_count: packageCount.value,
+    total_m2: totalM2Purchased.value,
+  });
+
   isAddedAnimation.value = true;
   setTimeout(() => {
     isAddedAnimation.value = false;
