@@ -389,39 +389,42 @@ function handleSaveToShowroomPass() {
         </div>
 
         <!-- 2. Material & Quality USPs Ribbon -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-neutral-50/90 rounded-3xl border border-neutral-200 text-xs">
+        <section
+          :aria-label="t('productDetail.uspRibbonAria')"
+          class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-neutral-50/90 rounded-3xl border border-neutral-200 text-xs"
+        >
           <div class="space-y-1">
             <div class="flex items-center gap-1.5 font-bold text-neutral-900">
-              <Award class="w-4 h-4 text-maxaro-blue shrink-0" />
-              <span class="truncate">{{ t('productDetail.uspQualityTitle') }}</span>
+              <Award class="w-4 h-4 text-maxaro-blue shrink-0" aria-hidden="true" />
+              <span class="truncate" :title="t('productDetail.uspQualityTitle')">{{ t('productDetail.uspQualityTitle') }}</span>
             </div>
             <p class="text-[11px] text-neutral-500 leading-tight">{{ t('productDetail.uspQualityDesc') }}</p>
           </div>
 
           <div class="space-y-1">
             <div class="flex items-center gap-1.5 font-bold text-neutral-900">
-              <ShieldCheck class="w-4 h-4 text-trust-green shrink-0" />
-              <span class="truncate">{{ t('productDetail.uspWarrantyTitle', { years: product.warrantyYears }) }}</span>
+              <ShieldCheck class="w-4 h-4 text-trust-green shrink-0" aria-hidden="true" />
+              <span class="truncate" :title="t('productDetail.uspWarrantyTitle', { years: product?.warrantyYears ?? 10 })">{{ t('productDetail.uspWarrantyTitle', { years: product?.warrantyYears ?? 10 }) }}</span>
             </div>
             <p class="text-[11px] text-neutral-500 leading-tight">{{ t('productDetail.uspWarrantyDesc') }}</p>
           </div>
 
           <div class="space-y-1">
             <div class="flex items-center gap-1.5 font-bold text-neutral-900">
-              <Truck class="w-4 h-4 text-trust-green shrink-0" />
-              <span class="truncate">{{ t('productDetail.uspTransportTitle') }}</span>
+              <Truck class="w-4 h-4 text-trust-green shrink-0" aria-hidden="true" />
+              <span class="truncate" :title="t('productDetail.uspTransportTitle')">{{ t('productDetail.uspTransportTitle') }}</span>
             </div>
             <p class="text-[11px] text-neutral-500 leading-tight">{{ t('productDetail.uspTransportDesc') }}</p>
           </div>
 
           <div class="space-y-1">
             <div class="flex items-center gap-1.5 font-bold text-neutral-900">
-              <Building2 class="w-4 h-4 text-maxaro-accent shrink-0" />
-              <span class="truncate">{{ t('productDetail.uspShowroomTitle') }}</span>
+              <Building2 class="w-4 h-4 text-maxaro-accent shrink-0" aria-hidden="true" />
+              <span class="truncate" :title="t('productDetail.uspShowroomTitle')">{{ t('productDetail.uspShowroomTitle') }}</span>
             </div>
             <p class="text-[11px] text-neutral-500 leading-tight">{{ t('productDetail.uspShowroomDesc') }}</p>
           </div>
-        </div>
+        </section>
 
         <!-- 3. Product Editorial & Architectural Story -->
         <div class="p-6 bg-white rounded-3xl border border-neutral-200 space-y-3 shadow-xs">
